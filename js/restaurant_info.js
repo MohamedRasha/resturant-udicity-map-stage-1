@@ -1,36 +1,21 @@
 let restaurant;
-var newMap;
+var map;
 
 /**
- * Initialize map as soon as the page is loaded.
+ * Initialize Google map, called from HTML.
  */
-document.addEventListener('DOMContentLoaded', (event) => {
-  initMap();
-});
-
-/**
- * Initialize leaflet map
- */
-initMap = () => {
+window.initMap = () => {
   fetchRestaurantFromURL((error, restaurant) => {
     if (error) { // Got an error!
       console.error(error);
     } else {
-      self.newMap = L.map('map', {
-        center: [restaurant.latlng.lat, restaurant.latlng.lng],
+      self.map = new google.maps.Map(document.getElementById('map'), {
         zoom: 16,
-        scrollWheelZoom: false
+        center: restaurant.latlng,
+        scrollwheel: false
       });
-      L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
-        mapboxToken: 'pk.eyJ1IjoiYWRlbjd4IiwiYSI6ImNqbnV4bWR3NzE5bW8zcW1vMnQ2cXdoaGkifQ.5zUzQB8aar7IDwRu2Ms9-w',
-        maxZoom: 18,
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-          '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-          'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        id: 'mapbox.streets'
-      }).addTo(newMap);
       fillBreadcrumb();
-      DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
+      DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
     }
   });
 }
@@ -73,7 +58,6 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const image = document.getElementById('restaurant-img');
   image.className = 'restaurant-img'
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
-  image.alt = restaurant.name +' restaurant';
 
   const cuisine = document.getElementById('restaurant-cuisine');
   cuisine.innerHTML = restaurant.cuisine_type;
@@ -111,7 +95,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  */
 fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
-  const title = document.createElement('h3');
+  const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
 
